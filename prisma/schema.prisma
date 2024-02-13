@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+enum Role {
+    USER
+    ADMIN
+}
+
+model User {
+    user_id       Int      @id @default(autoincrement())
+    username      String?  @unique
+    password      String?
+    first_name    String
+    last_name     String
+    user_idcard   Int
+    user_phone    String?
+    user_email    String?  @unique
+    user_birthday DateTime
+    user_age      Int
+    role          Role     @default(USER)
+    province      Province @relation(fields: [pv_id], references: [pv_id], onDelete: Cascade, onUpdate: Cascade)
+    pv_id         Int      @map("pv_id")
+    booking       Booking  @relation(fields: [booking_id], references: [booking_id], onDelete: Cascade, onUpdate: Cascade)
+    booking_id    Int      @map("booking_id")
+}
+
+model Booking {
+    booking_id   Int          @id @default(autoincrement())
+    book_date    DateTime
+    sex          String?
+    user_id      Int          @map("user_id")
+    treatment_id Int          @map("treatment_id")
+    User         User[]
+    Booking_ba   Booking_ba[]
+}
+
+model Booking_ba {
+    ba_id      Int     @id @default(autoincrement())
+    doctor_id  Int
+    status     String?
+    ordinal    String?
+    booking    Booking @relation(fields: [booking_id], references: [booking_id], onDelete: Cascade, onUpdate: Cascade)
+    booking_id Int     @map("booking_id")
+}
+
+model role {
+    role_id        Int     @id @default(autoincrement())
+    role_name      String?
+    roloe_password String?
+}
+
+model Treatment_type {
+    treatment_id   Int     @id @default(autoincrement())
+    treatment_name String?
+}
+
+model Province {
+    pv_id        Int            @id @default(autoincrement())
+    pv_name      String
+    User         User[]
+    Sub_district Sub_district[]
+    District     District[]
+}
+
+model District {
+    dist_id      Int            @id @default(autoincrement())
+    dist_name    String
+    province     Province       @relation(fields: [pv_id], references: [pv_id], onDelete: Cascade, onUpdate: Cascade)
+    pv_id        Int            @map("pv_id")
+    Sub_district Sub_district[]
+}
+
+model Sub_district {
+    sdt_id   Int      @id @default(autoincrement())
+    sdt_name String
+    district District @relation(fields: [dist_id], references: [dist_id], onDelete: Cascade, onUpdate: Cascade)
+    dist_id  Int      @map("dist_id")
+    province Province @relation(fields: [pv_id], references: [pv_id], onDelete: Cascade, onUpdate: Cascade)
+    pv_id    Int      @map("pv_id")
+}
